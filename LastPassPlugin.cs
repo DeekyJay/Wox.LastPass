@@ -35,26 +35,33 @@
             };
         }
 
-        public List<Result> Query(Query query){
-            var results = new List<Result>();
+        public List<Result> Query(Query query)
+        {
+            if (string.IsNullOrEmpty(query.Search))
+            {
+                return new List<Result>();
+            }
 
             var entries = this.QueryLastPass(query.Search);
 
             if (entries == null)
             {
-                results.Add(new Result
-                {
-                    Title = "Login",
-                    SubTitle = "Please login through a WSL Terminal",
-                    Action = e =>
-                    {
-                        Process.Start("wt.exe", "-p \"Ubuntu-20.04\""); // Big assumption the user has Windows Terminal AND this profile present.
-                        return false;
-                    }
-                });
 
-                return results;
+                return new List<Result>() {
+                    new Result
+                    {
+                        Title = "No Results",
+                        SubTitle = "No Results. Perhaps you need to login through a WSL Terminal",
+                        Action = e =>
+                        {
+                            Process.Start("wt.exe", "-p \"Ubuntu-20.04\""); // Big assumption the user has Windows Terminal AND this profile present.
+                            return false;
+                        }
+                    }
+                };
             }
+
+            var results = new List<Result>();
 
             foreach (var entry in entries)
             {
